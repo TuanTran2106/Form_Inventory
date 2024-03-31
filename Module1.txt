@@ -1,0 +1,19 @@
+'Lay DL tu ben Sheet2:Product Master qua Sheet4: Product_Inventory
+'Nam trong ListBox cua Product_Inventory
+Sub Product_List()
+LastRow = Sheet2.Range("B9999").End(xlUp).Row
+For i = 2 To LastRow
+    Sheet4.Cells(i, 1) = Sheet2.Cells(i, 2)
+Next i
+End Sub
+
+Private Sub In_Tick()
+'Filter du lieu o cot In/Out co gia tri la Receive
+With Sheet3
+.Range("P2:X9999").ClearContents
+.Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("M1:M2"), _
+CopyToRange:=.Range("P1:X1"), Unique:=False
+.Range("M2").ClearContents
+End With
+End Sub
+

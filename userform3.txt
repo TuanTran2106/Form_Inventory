@@ -1,0 +1,152 @@
+
+
+
+Private Sub CommandButton1_Click()
+UserForm2.Show
+End Sub
+
+Private Sub CommandButton2_Click()
+UserForm1.Show
+End Sub
+
+Private Sub Frame1_Click()
+
+End Sub
+
+
+
+Private Sub ListBox1_Click()
+'Click ch?n s?n ph?m
+SelectRow = Me.ListBox1.ListIndex
+UserForm4.TextBoxProduct = Me.ListBox1.Column(0, SelectRow)
+UserForm4.Show
+End Sub
+
+Private Sub OptionButton1_Click()
+'Click vào All
+Me.ListBox2.RowSource = "ProductList"
+End Sub
+
+
+Private Sub OptionButton2_AfterUpdate()
+'Filter du lieu o cot In/Out co gia tri la In/Out/All
+Me.ListBox2.ColumnCount = 10
+With Sheet3
+.Range("P2:X9999").ClearContents
+.Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("M1:M2"), _
+CopyToRange:=.Range("P1:X1"), Unique:=False
+.Range("M2").ClearContents
+End With
+End Sub
+
+Private Sub OptionButton2_Click()
+'Click vao nut In
+Sheet3.Cells(2, 13) = Me("OptionButton2").Caption
+Me.ListBox2.RowSource = "InList"
+End Sub
+
+Private Sub OptionButton3_AfterUpdate()
+'Filter du lieu o cot In/Out co gia tri la In/Out/All
+Me.ListBox2.ColumnCount = 10
+With Sheet3
+.Range("P2:X9999").ClearContents
+.Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("M1:M2"), _
+CopyToRange:=.Range("P1:X1"), Unique:=False
+.Range("M2").ClearContents
+End With
+End Sub
+
+Private Sub OptionButton3_Click()
+'Click Out
+Sheet3.Cells(2, 13) = Me.OptionButton3.Caption
+Me.ListBox2.RowSource = "OutList"
+End Sub
+
+Private Sub OptionButton4_AfterUpdate()
+'Copy range cua Name Manager vào ListBox2 voi thuoc tinh "Yes" cua ReOrder
+Me.ListBox2.ColumnCount = 10
+With Sheet4
+    'ClearContent
+    .Range("S2:AB9999").ClearContents
+    .Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("M1:M2"), _
+    CopyToRange:=.Range("S1:AB1"), Unique:=False
+    .Range("M2").ClearContents
+End With
+End Sub
+
+Private Sub OptionButton4_Click()
+'Click Re-Order in Sheet4
+Sheet4.Cells(2, 13) = "Yes"
+Me.ListBox2.RowSource = "ReOrderList"
+End Sub
+
+Private Sub OptionButton5_AfterUpdate()
+Me.ListBox2.ColumnCount = 10
+With Sheet4
+     'ClearContent
+    .Range("S2:AB9999").ClearContents
+    .Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("N1:N2"), _
+    CopyToRange:=.Range("S1:AB1"), Unique:=False
+    .Range("N2").ClearContents
+End With
+End Sub
+
+Private Sub OptionButton5_Click()
+'Out of Stock
+Sheet4.Cells(2, 14) = "0"
+Me.ListBox2.RowSource = "OutOfStockList"
+End Sub
+
+Private Sub TextBox1_Change()
+With Me.ListBox1
+.RowSource = Enable
+For ColHead = 1 To 5
+.AddItem
+.List(0, ColHead - 1) = Sheet4.Cells(1, ColHead).Value
+Next ColHead
+
+
+ListRow = 1
+FindVal = "*" & Me.TextBox1 & "*"
+
+'Tim So dong giong
+LastRow = Sheet4.Range("A" & Rows.Count).End(xlUp).Row
+For ShRow = 2 To LastRow
+    FindRow = Application.WorksheetFunction.CountIf(Sheet4.Rows(ShRow).EntireRow, FindVal)
+    If FindRow > 0 Then
+        For ListCol = 1 To 5
+            .AddItem
+            .List(ListRow, ListCol - 1) = Sheet4.Cells(ShRow, ListCol).Value
+        Next ListCol
+    End If
+Next ShRow
+
+' Xoa het ki tu thi tu dong hoi phuc lai DL
+If Me.TextBox1.Value = "" Then
+    For ListR = 1 To LastRow
+    For ListCol = 1 To 5
+            .AddItem
+            .List(ListR - 1, ListCol - 1) = Sheet4.Cells(ListR, ListCol).Value
+        Next ListCol
+    Next ListR
+End If
+End With
+End Sub
+
+Private Sub UserForm_Initialize()
+
+'Tick chon All
+OutofStock = Application.WorksheetFunction.CountIfs(Sheet4.Range("E:E"), "0")
+ReOrder = Application.WorksheetFunction.CountIfs(Sheet4.Range("I:I"), "Yes")
+CurrentStock = Application.WorksheetFunction.Sum(Sheet4.Range("E:E"))
+StockValue = Application.WorksheetFunction.Sum(Sheet4.Range("F:F"))
+StockCost = Application.WorksheetFunction.Sum(Sheet4.Range("G:G"))
+
+Me("Label12") = OutofStock
+Me("Label3") = ReOrder
+Me("Label4") = CurrentStock
+Me("Label5") = StockValue
+Me("Label6") = StockCost
+'Add ListBox1
+Me.ListBox1.RowSource = "SearchList"
+End Sub

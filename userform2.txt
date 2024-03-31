@@ -1,0 +1,117 @@
+
+Private Sub ComboBox1_Change()
+'Ô Stock : Stock = In+Open-Out
+Opening = Application.WorksheetFunction.SumIfs(Sheet3.Range("E:E"), Sheet3.Range("C:C"), "Open", Sheet3.Range("B:B"), Me.ComboBox1)
+In_Status = Application.WorksheetFunction.SumIfs(Sheet3.Range("E:E"), Sheet3.Range("C:C"), "In", Sheet3.Range("B:B"), Me.ComboBox1)
+Out_Status = Application.WorksheetFunction.SumIfs(Sheet3.Range("E:E"), Sheet3.Range("C:C"), "Out", Sheet3.Range("B:B"), Me.ComboBox1)
+
+Stock = Opening + In_Status - Out_Status
+Me.TextBox12 = Stock
+'Danh sách san pham thay doi
+If Sheet3.Range("B:B").Find(Me.ComboBox1.Value, , xlValues, xlWhole) Is Nothing Then
+MsgBox "Product Not Available"
+Else
+ 'Cap nhap Total Value,Total Cost Value
+ Lookup = Sheet3.Range("B:B").Find(Me.ComboBox1.Value, , xlValues, xlWhole).Row
+ Me.TextBox6 = Sheet3.Cells(Lookup, 6)
+ Me.TextBox8 = Sheet3.Cells(Lookup, 8)
+ Me.TextBox4 = Sheet3.Cells(Lookup, 4)
+ Me.TextBox10 = Sheet3.Cells(Lookup, 10)
+End If
+'So sánh Stock và Re-Order dua ra Alert
+If Me.TextBox12.Value <= Me.TextBox10 Then
+    Me.Label12.Caption = "[ " & Me.ComboBox1.Value & " quantity is equal or less than Re-Order quantity ]"
+ElseIf Me.TextBox12.Value > Me.TextBox10 Then
+    Me.Label12.Caption = ""
+End If
+End Sub
+
+Private Sub ComboBox2_AfterUpdate()
+If Me.ComboBox2 = "In" Then
+    If Val(Me.TextBox12) > Val(Me.TextBox10) Then
+    MsgBox "You can't receive more than product"
+    Me.TextBox5 = ""
+    End If
+End If
+End Sub
+
+Private Sub CommandButton1_Click()
+'Save Data
+If Me("TextBox1") = "" Then
+MsgBox "Please Entire ID First"
+Exit Sub
+End If
+Set FindData = Sheet3.Range("A:A").Find(Me("TextBox1").Value, , xlValues, xlWhole)
+If FindData Is Nothing Then
+    NewRow = Sheet3.Range("A99999").End(xlUp).Row + 1
+Else
+    NewRow = FindData.Row
+End If
+Sheet3.Cells(NewRow, 1) = Me("TextBox1")
+For Field = 5 To 10
+    Sheet3.Cells(NewRow, Field) = Val(Me("TextBox" & Field))
+Next Field
+Sheet3.Cells(NewRow, 2) = Me("ComboBox1")
+Sheet3.Cells(NewRow, 3) = Me("ComboBox2")
+Sheet3.Cells(NewRow, 4) = Me("TextBox4")
+'ListBoxUpdate
+Me.ListBox1.RowSource = "ProductListBox"
+End Sub
+
+
+Private Sub CommandButton2_Click()
+'Add New
+LastRow = Sheet3.Range("A9999").End(xlUp).Row
+t = 7351 + LastRow - 1
+Me("TextBox1") = "ID0" & t
+For DataField = 4 To 10
+    Me("TextBox" & DataField) = ""
+Next DataField
+Me("ComboBox1") = ""
+Me("ComboBox2") = ""
+End Sub
+
+Private Sub CommandButton3_Click()
+'Fresh Form
+Unload Me
+UserForm2.Show
+End Sub
+
+
+
+Private Sub ListBox1_Click()
+
+End Sub
+
+Private Sub TextBox5_AfterUpdate()
+'Ði?u ki?n xuat hang
+If Me.ComboBox2 = "Out" Then
+    If Val(Me.TextBox12) < Val(Me.TextBox5) Then
+        MsgBox "You can't export more than product"
+        Me.TextBox5 = ""
+    End If
+End If
+End Sub
+
+Private Sub TextBox5_Change()
+Me.TextBox7 = Val(Me.TextBox5) * Val(Me.TextBox6)
+Me.TextBox9 = Val(Me.TextBox5) * Val(Me.TextBox8)
+
+End Sub
+
+
+Private Sub UserForm_Initialize()
+'Format ID
+LastRow = Sheet3.Range("A9999").End(xlUp).Row
+t = 7351 + LastRow - 1
+Me("TextBox1") = "ID0" & t
+'Create SourceRow: Product
+Me.ComboBox1.RowSource = "Product_Inventory"
+'Create SourceRow : In/Out
+Me.ComboBox2.AddItem ("In")
+Me.ComboBox2.AddItem ("Out")
+Me.ComboBox2.AddItem ("Open")
+
+'Tao RowSource cho ListBox1
+Me.ListBox1.RowSource = "ProductListBox"
+End Sub

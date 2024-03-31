@@ -1,0 +1,42 @@
+
+
+Private Sub CommandButton1_Click()
+'Export File ra 1 sheet moi
+LastRow = Sheet3.Range("AD" & Rows.Count).End(xlUp).Row
+Set Rng = Sheet3.Range("AD1:AM" & LastRow)
+
+'Export Data
+Rng.Copy
+Workbooks.Add
+ActiveSheet.Paste
+Unload Me
+End Sub
+
+Private Sub TextBoxProduct_Change()
+'Gan gia tri cua TextBoxProduct cho sheet InoutStock
+Sheet3.Range("AA2") = Me.TextBoxProduct.Value
+With Sheet3
+.Range("AD2:AM9999").ClearContents
+.Range("A1:J9999").AdvancedFilter xlFilterCopy, criteriaRange:=.Range("AA1:AA2"), _
+CopyToRange:=.Range("AD1:AM1"), Unique:=False
+.Range("AA2").ClearContents
+End With
+Me.ListBox1.RowSource = "ProductStockList"
+
+Lookup = Sheet3.Range("B:B").Find(Me.TextBoxProduct.Value, , xlValues, xlWhole).Row
+Me.TextBox2 = Sheet4.Cells(Lookup, "C")
+Me.TextBox3 = Sheet4.Cells(Lookup, "D")
+Me.TextBox4 = Sheet4.Cells(Lookup, "E")
+Me.TextBox5 = Sheet4.Cells(Lookup, "J")
+
+valReOrder = Sheet4.Cells(Lookup, "H")
+If Me.TextBox4.Value <= valReOrder Then
+    Me.TextBox6 = Me.TextBoxProduct & " have quantity less than reorder quantity. Please purchase more product to prepare for the next trade"
+    Me.TextBox6.ForeColor = vbRed
+    Me.TextBox6.BorderStyle = fmBorderStyleSingle
+Else
+    Me.TextBox6 = Me.TextBoxProduct & " have quantity more than reorder quantity."
+    Me.TextBox6.ForeColor = vbBlack
+    Me.TextBox6.BorderStyle = fmBorderStyleSingle
+End If
+End Sub

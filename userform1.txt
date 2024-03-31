@@ -1,0 +1,79 @@
+Private Sub CommandButton1_Click()
+'Delete
+If Me("TextBox1") = "" Then
+MsgBox "Please Entire ID First"
+Exit Sub
+End If
+Set FindData = Sheet2.Range("A:A").Find(Me("TextBox1").Value, , xlValues, xlWhole)
+If FindData Is Nothing Then
+    MsgBox "Data Is Nothing"
+    Exit Sub
+Else
+    NewRow = FindData.Row
+End If
+For DataCol = 1 To 6
+    Me("TextBox" & DataCol) = ""
+Next DataCol
+    Sheet2.Rows(NewRow).Delete
+    ' ListBox RowSource
+Me.ListBox1.RowSource = "ProductList"
+End Sub
+
+Private Sub CommandButton2_Click()
+'Search
+If Me("TextBox1") = "" Then
+MsgBox "Please Entire ID First"
+Exit Sub
+End If
+Set FindData = Sheet2.Range("A:A").Find(Me("TextBox1").Value, , xlValues, xlWhole)
+If FindData Is Nothing Then
+    MsgBox "Data Is Nothing"
+Else
+    NewRow = FindData.Row
+End If
+For DataCol = 1 To 6
+    Me("TextBox" & DataCol) = Sheet2.Cells(NewRow, DataCol)
+Next DataCol
+End Sub
+
+Private Sub CommandButton3_Click()
+'Refresh
+    For DataCol = 1 To 6
+        Me("TextBox" & DataCol) = ""
+    Next DataCol
+End Sub
+
+Private Sub CommandButton4_Click()
+'Save /Update
+If Me("TextBox1") = "" Then
+MsgBox "Please Entire ID First"
+Exit Sub
+End If
+Set FindData = Sheet2.Range("A:A").Find(Me("TextBox1").Value, , xlValues, xlWhole)
+If FindData Is Nothing Then
+    NewRow = Sheet2.Range("A99999").End(xlUp).Row + 1
+Else
+    NewRow = FindData.Row
+End If
+For DataCol = 1 To 6
+    Sheet2.Cells(NewRow, DataCol) = Val(Me("TextBox" & DataCol))
+Next DataCol
+
+' ListBox RowSource
+Me.ListBox1.RowSource = "ProductList"
+End Sub
+
+
+Private Sub ListBox1_DblClick(ByVal Cancel As MSForms.ReturnBoolean)
+SelectRow = Me.ListBox1.ListIndex
+Me("TextBox1") = Me.ListBox1.Column(0, SelectRow)
+'Search ID trong TextBox1
+CommandButton2_Click
+End Sub
+
+Private Sub UserForm_Initialize()
+' ListBox RowSource
+Me.ListBox1.RowSource = "ProductList"
+
+
+End Sub
